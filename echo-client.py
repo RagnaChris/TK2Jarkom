@@ -14,7 +14,7 @@ def start_connection(path_program, arg):
         s.connect((HOST, PORT))
         with open(path_program, "rb") as f:
             data = f.read()
-            s.sendall(data)
+            s.sendall(bytes(str(arg),'utf-8') + b'&&&' + data)
             print("data terkirim")
             s.shutdown(1)
         output = s.recv(1024)
@@ -25,7 +25,9 @@ def send_job():
     while True:
         if len(queue_jobs) != 0:
             job = queue_jobs[0]
+            print("Mengirimkan pekerjaan", job)
             queue_jobs = queue_jobs[1:]
+            print("Daftar jobs yang belum dilakukan", queue_jobs)
             start_connection(job[0], job[1])
 
 def wait_input():
@@ -35,7 +37,7 @@ def wait_input():
         
         cmd = input().split()
         if cmd[0] == "send":
-            path_program, arg = cmd[1], cmd[2:]
+            path_program, arg = cmd[1], ' '.join(cmd[2:])
             queue_jobs.append([path_program, arg])
         else:
             # handle quit program (not solved)
