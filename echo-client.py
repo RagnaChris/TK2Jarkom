@@ -2,8 +2,8 @@
 
 import socket, threading
 
-HOST = '127.0.0.1'
-# HOST = '54.157.4.185'
+# HOST = '127.0.0.1'
+HOST = '34.207.128.24'
 PORT = 65432
 queue_jobs = []
 MENU_MSG = ["Select command you want to choose ", "1. Type send <program path> <set of arguments>",
