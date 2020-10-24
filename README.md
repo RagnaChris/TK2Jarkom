@@ -1,11 +1,5 @@
-# TODO
-- Socket bisa terima banyak koneksi
-- bisa kirim executable
-- implementasi queue (master)
+# Tugas 3 Jaringan Komputer
+- Adrian Wijaya (1806205363)
+- Christian Denata (1806205382)
+- Tsaqif Naufal (1806205294)
 
-
-# Bentuk programnya:
-- python <script> <executable> <parameter input> (versi simple)
-- <script> bisa master atau worker
-
-# Versi queue:
