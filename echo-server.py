@@ -27,13 +27,14 @@ def write_program(conn):
 
 def run_program():
     os.system("chmod +x program-test")
-    os.system("./program-test " +  arg + " > program-test.out")
+    return os.system("./program-test " +  arg + " > program-test.out")
 
-def send_output(conn):
+def send_output(conn, status_code):
+    print(status_code)
     with open("program-test.out", "rb") as f:
          data = f.read()
          print(repr(data))
-         conn.sendall(data)
+         conn.sendall(bytes(str(status_code), 'utf-8') + b'&&&' + data)
 
 # Socketnya pakai IPv4 dan TCP
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -46,7 +47,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print('Connected by', addr)
 
             write_program(conn)
-            run_program()
-            send_output(conn)
+            send_output(conn, run_program())
 
             os.system("rm program-test program-test.out") # clean program
