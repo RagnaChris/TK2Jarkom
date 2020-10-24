@@ -53,13 +53,21 @@ def show_worker_information():
                worker.job_status, worker.status, ' '.join(worker.job)))
     print('-' * 80)
 
-
+'''
+In this method we use '&&&' for divide status_code and output data.
+For example:
+b'0&&&This is output data'
+This method parse output into status_code and output data.
+'''
 def check_jobs_status(output):
     status_code = output[0:output.rfind(b'&&&')].decode()
     data = output[output.rfind(b'&&&')+3:]
     return (int(status_code), data)
     
-
+'''
+In this method, it just naively find the first worker that are available.
+Return None when no worker available.
+'''
 def get_available_worker():
     for worker in lst_worker:
         if worker.status == 'Available':
@@ -84,6 +92,9 @@ def send_job():
             threading.Thread(target=start_connection, args=(job[0],
                 job[1],worker_available)).start()
 
+'''
+Wait for user input in order to execute send or status command.
+'''
 def wait_input():
     while True:
         for msg in MENU_MSG:
