@@ -13,7 +13,7 @@ PORT = 65432
 queue_jobs = []
 lst_worker = []
 MENU_MSG = ["Select command you want to choose ", "1. Type send <program path> <set of arguments>",
-        "2. Type 'quit' to quit program", "3. Type 'status' to see every worker and job status"]
+        "2. Type 'status' to see every worker and job status"]
 
 def start_connection(path_program, arg, worker):
     global queue_jobs
@@ -91,9 +91,6 @@ def wait_input():
             queue_jobs.append([path_program, arg])
         elif cmd[0] == "status":
             show_worker_information()
-        else:
-            # handle quit program (not solved)
-            sys.exit()
 
 if __name__ == "__main__" :
     # Handle ip worker
