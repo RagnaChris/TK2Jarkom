@@ -12,34 +12,35 @@ class Worker:
 PORT = 65432
 queue_jobs = []
 lst_worker = []
+flag = True
 MENU_MSG = ["Select command you want to choose ", "1. Type send <program path> <set of arguments>",
         "2. Type 'status' to see every worker and job status"]
 
 def start_connection(path_program, arg, worker):
-    global queue_jobs
+    global queue_jobs, flag
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(2)
+        s.settimeout(5)
 
         try:
             s.connect((worker.HOST, PORT))
-            worker.status = 'Running'
-            queue_jobs = queue_jobs[1:]
         except:
             worker.status = 'Dead'
             worker.job_status = 'Dead'
+            queue_jobs.insert(0,worker.job)
             return
+        finally:
+            flag = True
 
         with open(path_program, "rb") as f:
             data = f.read()
             s.sendall(bytes(str(arg),'utf-8') + b'&&&' + data)
             worker.job_status = 'Running'
-            print("data terkirim")
             s.shutdown(1)
         
         s.settimeout(None)
         status_code, output = check_jobs_status(s.recv(1024))
 
-        print("Received jobs result from {} :\n{}".format(path_program, output.decode()))
+        print("Received jobs result from {} {} :\n{}".format(path_program,arg, output.decode()))
         worker.status = 'Available'
         worker.job_status = 'Finished' if status_code == 0 else 'Failed'
 
@@ -49,7 +50,7 @@ def show_worker_information():
         "JOB NAME"))
     for i, worker in enumerate(lst_worker):
         print("{}. {: <15} {: <10} {: <10} {: <30}".format(i+1,worker.HOST,
-               worker.job_status, worker.status, worker.job))
+               worker.job_status, worker.status, ' '.join(worker.job)))
     print('-' * 80)
 
 
@@ -67,18 +68,21 @@ def get_available_worker():
     return None
 
 def send_job():
-    global queue_jobs
+    global queue_jobs, flag
     while True:
         worker_available = get_available_worker()
-        if len(queue_jobs) != 0 and worker_available:
+        if len(queue_jobs) != 0 and worker_available and flag:
             print(worker_available.HOST)
             job = queue_jobs[0]
+            queue_jobs = queue_jobs[1:]
+            worker_available.status = 'Running'
 
-            worker_available.job = ' '.join(job)
+            worker_available.job = job
 
             print("Mengirimkan pekerjaan", job)
             print("Daftar jobs yang belum dilakukan", queue_jobs)
-            start_connection(job[0], job[1], worker_available)
+            threading.Thread(target=start_connection, args=(job[0],
+                job[1],worker_available)).start()
 
 def wait_input():
     while True:
@@ -93,7 +97,6 @@ def wait_input():
             show_worker_information()
 
 if __name__ == "__main__" :
-    # Handle ip worker
     with open("ip_worker.txt", "r") as f:
         # Only work in python 3.8+
         while (HOST := f.readline()) != '':
